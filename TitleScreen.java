@@ -115,16 +115,15 @@ public class TitleScreen extends Screen {
             this.splash = this.minecraft.getSplashManager().getSplash();
         }
 
-        // Plain text nav buttons spread horizontally along the bottom — no boxes
-        int btnH = 20;
-        int btnW = 160;
+        // Plain text nav buttons spread horizontally — width calculated to always fit
+        int btnH = 10;
         int bottomPad = 14;
         int btnY = this.height - bottomPad - btnH;
-        int gap = 10;
+        int gap = 6;
+        int totalButtons = 5;
+        int btnW = (this.width - (gap * (totalButtons + 1))) / totalButtons;
 
-        // Centre the 5 buttons across the screen
-        int totalW = (btnW * 5) + (gap * 4);
-        int x = (this.width - totalW) / 2;
+        int x = gap;
 
         Component disabledReason = this.getMultiplayerDisabledReason();
         boolean mpEnabled = disabledReason == null;
@@ -175,11 +174,11 @@ public class TitleScreen extends Screen {
         );
         langBtn.setPosition(this.width - 46, btnY);
 
-        SpriteIconButton accessBtn = this.addRenderableWidget(
-                CommonButtons.accessibility(20,
-                        p_ -> this.minecraft.setScreen(new AccessibilityOptionsScreen(this, this.minecraft.options)), true)
-        );
-        accessBtn.setPosition(this.width - 22, btnY);
+        //SpriteIconButton accessBtn = this.addRenderableWidget(
+        //        CommonButtons.accessibility(20,
+        //                p_ -> this.minecraft.setScreen(new AccessibilityOptionsScreen(this, this.minecraft.options)), true)
+        //);
+        //accessBtn.setPosition(this.width - 22, btnY);
 
         // Copyright bottom left
         //int copyrightW = this.font.width(COPYRIGHT_TEXT);
@@ -420,10 +419,16 @@ public class TitleScreen extends Screen {
             this.screenH = screenH;
         }
 
+        // Border colours — gold, same on idle and hover
+        private static final int COL_FILL         = 0x88808080; // half-opacity gray fill
+        private static final int COL_BORDER_IDLE  = 0xFFFFD700; // gold
+        private static final int COL_BORDER_HOVER = 0xFFFFD700; // gold (same)
+
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             boolean hovered = this.isHovered();
-            // On leading edge of hover, dodge if still under limit
+
+            // Dodge logic
             if (hovered && !wasHovered && dodgeCount < MAX_DODGES) {
                 int newX = RAND.nextInt(Math.max(1, screenW - this.width));
                 int newY = RAND.nextInt(Math.max(1, screenH - this.height));
@@ -432,7 +437,29 @@ public class TitleScreen extends Screen {
                 dodgeCount++;
             }
             wasHovered = hovered;
-            super.renderWidget(graphics, mouseX, mouseY, delta);
+
+            int x = this.getX();
+            int y = this.getY();
+            int w = this.width;
+            int h = this.height;
+            int border = hovered ? COL_BORDER_HOVER : COL_BORDER_IDLE;
+
+            // Half-opacity gray fill
+            graphics.fill(x, y, x + w, y + h, COL_FILL);
+
+            // 1px colored border
+            graphics.fill(x,         y,         x + w, y + 1,     border); // top
+            graphics.fill(x,         y + h - 1, x + w, y + h,     border); // bottom
+            graphics.fill(x,         y,         x + 1, y + h,     border); // left
+            graphics.fill(x + w - 1, y,         x + w, y + h,     border); // right
+
+            // Draw text centred both horizontally and vertically
+            var font = net.minecraft.client.Minecraft.getInstance().font;
+            String label = this.getMessage().getString();
+            int textX = x + (w - font.width(label)) / 2;
+            int textY = y + (h - 8) / 2; // 8 = font height
+            int textCol = this.active ? 0xFFFFFFFF : 0xFFA0A0A0;
+            graphics.drawString(font, label, textX, textY, textCol);
         }
     }
 }
