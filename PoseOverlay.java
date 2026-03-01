@@ -72,22 +72,22 @@ public class PoseOverlay {
     static {
         java.util.Map<String, String[]> m = new java.util.LinkedHashMap<>();
         m.put("W", new String[]{
-                " \\ O /  ",
+                "  \\ O /  ",
                 "    |    ",
                 "   / \\   "
         });
         m.put("S", new String[]{
-                "     O    ",
+                "    O    ",
                 "   / ] \\ ",
                 "    / \\  "
         });
         m.put("A", new String[]{
-                "   O /    ",
+                "   O__    ",
                 " / ]     ",
                 "  / \\    "
         });
         m.put("D", new String[]{
-                "  \\ O   ",
+                "  __ O   ",
                 "     | \\ ",
                 "    / \\  "
         });
